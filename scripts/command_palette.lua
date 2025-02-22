@@ -323,23 +323,6 @@ function command_palette_get_line(self, _, v)
     return ass.text
 end
 
-local function format_flags(track)
-    local flags = ""
-
-    for _, flag in ipairs({"default", "forced", "dependent", "visual-impaired",
-                           "hearing-impaired", "image", "external"}) do
-        if track[flag] then
-            flags = flags .. flag .. " "
-        end
-    end
-
-    if flags == "" then
-        return ""
-    end
-
-    return " [" .. flags:sub(1, -2) .. "]"
-end
-
 local function escape_codec(str)
     if not str or str == '' then return '' end
 
@@ -615,12 +598,13 @@ mp.register_script_message("show-command-palette", function (name)
         end
     elseif name == "Playlist" then
         local count = mp.get_property_number("playlist-count")
+        local show = mp.get_property_native("osd-playlist-entry")
         if count == 0 then return end
 
         for i = 0, (count - 1) do
             local text = mp.get_property("playlist/" .. i .. "/title")
 
-            if text == nil then
+            if not text or show ~= "title" then
                 text = file_name(mp.get_property("playlist/" .. i .. "/filename"))
             end
 
